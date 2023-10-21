@@ -21,11 +21,19 @@ def api(station, date):
         "temperature" : temperature,
     }
 
-@app.route("api/v1/<station>")
+@app.route("/api/v1/<station>")
 def bystation(station):
     filename = "data-small/TG_STAID" + str(station).zfill(6) + ".txt"
     df = pd.read_csv(filename, skiprows=20, parse_dates=["    DATE"])
+    return df.to_dict(orient="records")
 
+@app.route("/api/v1/yearly/<station>/<year>")
+def yearly(station, year):
+    filename = "data-small/TG_STAID" + str(station).zfill(6) + ".txt"
+    df = pd.read_csv(filename, skiprows=20, parse_dates=["    DATE"])
+    df["    DATE"] = df["    DATE"].astype(str)
+    result = df[df["    DATE"].str.startswith(str(year))].to_dict(orient="records")
+    return result
 
 if __name__ == "__main__":
     app.run(debug=True)
